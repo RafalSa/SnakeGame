@@ -36,20 +36,17 @@ class Program
         while (true)
         {
             Console.Clear();
-            bool eaten = false; 
+            bool eaten = false;
 
-
-            // Draw Obstacle
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.SetCursorPosition(obstacleXpos, obstacleYpos);
             Console.Write(obstacle);
 
-            // Draw Snake Head
+
             Console.ForegroundColor = ConsoleColor.Green;
             Console.SetCursorPosition(hoofd.xPos, hoofd.yPos);
             Console.Write("■");
 
-            // Draw Borders
             Console.ForegroundColor = ConsoleColor.White;
             for (int i = 0; i < screenwidth; i++)
             {
@@ -72,11 +69,11 @@ class Program
                 Console.Write("■");
             }
 
-            // Draw Score
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("Score: " + score);
+            Console.ForegroundColor = ConsoleColor.Yellow; 
+            Console.SetCursorPosition(2, 0); 
+            Console.WriteLine("Wynik: " + score);
 
-            // Draw Tail
+
             Console.ForegroundColor = ConsoleColor.White;
             for (int i = 0; i < teljePositie.Count; i += 2)
             {
@@ -109,13 +106,15 @@ class Program
             if (movement == "LEFT") hoofd.xPos--;
             if (movement == "RIGHT") hoofd.xPos++;
 
+
             if (hoofd.xPos == obstacleXpos && hoofd.yPos == obstacleYpos)
             {
                 score++;
                 obstacleXpos = randomnummer.Next(1, screenwidth - 2);
                 obstacleYpos = randomnummer.Next(1, screenheight - 2);
-                eaten = true; 
+                eaten = true;
             }
+
             teljePositie.Insert(0, hoofd.xPos);
             teljePositie.Insert(1, hoofd.yPos);
 
@@ -147,10 +146,15 @@ class Program
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Red;
         Console.SetCursorPosition(w / 5, h / 2);
-        Console.WriteLine("Game Over");
+        Console.WriteLine("KONIEC GRY"); // Tłumaczenie
         Console.SetCursorPosition(w / 5, h / 2 + 1);
-        Console.WriteLine("Dein Score ist: " + score);
-        Console.SetCursorPosition(w / 5, h / 2 + 2);
+        Console.WriteLine("Twój wynik: " + score); // Tłumaczenie
+        Console.SetCursorPosition(w / 5, h / 2 + 3);
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine("Naciśnij Enter, aby zamknąć..."); // Instrukcja
+
+        // Czekaj na klawisz, zamiast zamykać od razu
+        Console.ReadLine();
         Environment.Exit(0);
     }
 }
