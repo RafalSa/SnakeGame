@@ -27,28 +27,29 @@ class Program
         teljePositie.Add(hoofd.xPos);
         teljePositie.Add(hoofd.yPos);
 
-        DateTime tijd = DateTime.Now;
         string obstacle = "*";
-        int obstacleXpos = randomnummer.Next(1, screenwidth);
-        int obstacleYpos = randomnummer.Next(1, screenheight);
+        int obstacleXpos = randomnummer.Next(1, screenwidth - 2);
+        int obstacleYpos = randomnummer.Next(1, screenheight - 2);
 
-        string movement = "RIGHT"; 
+        string movement = "RIGHT";
 
         while (true)
         {
             Console.Clear();
+            bool eaten = false; 
 
-            //Draw Obstacle
+
+            // Draw Obstacle
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.SetCursorPosition(obstacleXpos, obstacleYpos);
             Console.Write(obstacle);
 
-            //Draw Snake Head
+            // Draw Snake Head
             Console.ForegroundColor = ConsoleColor.Green;
             Console.SetCursorPosition(hoofd.xPos, hoofd.yPos);
             Console.Write("■");
 
-            //Draw Borders
+            // Draw Borders
             Console.ForegroundColor = ConsoleColor.White;
             for (int i = 0; i < screenwidth; i++)
             {
@@ -71,11 +72,11 @@ class Program
                 Console.Write("■");
             }
 
-            //Draw Score
-            Console.ForegroundColor = ConsoleColor.White; 
+            // Draw Score
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Score: " + score);
 
-            //Draw Tail (Snake Body)
+            // Draw Tail
             Console.ForegroundColor = ConsoleColor.White;
             for (int i = 0; i < teljePositie.Count; i += 2)
             {
@@ -83,78 +84,73 @@ class Program
                 Console.Write("■");
             }
 
-            //Draw Snake Head
-            Console.SetCursorPosition(hoofd.xPos, hoofd.yPos);
-            Console.Write("■");
-
-            // LOGIC INPUT 
-            ConsoleKeyInfo info = Console.ReadKey();
-
-            //Game Logic
-            switch (info.Key)
+            if (Console.KeyAvailable)
             {
-                case ConsoleKey.UpArrow:
-                    movement = "UP";
-                    break;
-                case ConsoleKey.DownArrow:
-                    movement = "DOWN";
-                    break; 
-                case ConsoleKey.LeftArrow:
-                    movement = "LEFT";
-                    break;
-                case ConsoleKey.RightArrow:
-                    movement = "RIGHT";
-                    break;
+                ConsoleKeyInfo info = Console.ReadKey(true);
+                switch (info.Key)
+                {
+                    case ConsoleKey.UpArrow:
+                        if (movement != "DOWN") movement = "UP";
+                        break;
+                    case ConsoleKey.DownArrow:
+                        if (movement != "UP") movement = "DOWN";
+                        break;
+                    case ConsoleKey.LeftArrow:
+                        if (movement != "RIGHT") movement = "LEFT";
+                        break;
+                    case ConsoleKey.RightArrow:
+                        if (movement != "LEFT") movement = "RIGHT";
+                        break;
+                }
             }
 
-            if (movement == "UP")
-                hoofd.yPos--;
-            if (movement == "DOWN")
-                hoofd.yPos++;
-            if (movement == "LEFT")
-                hoofd.xPos--;
-            if (movement == "RIGHT")
-                hoofd.xPos++;
+            if (movement == "UP") hoofd.yPos--;
+            if (movement == "DOWN") hoofd.yPos++;
+            if (movement == "LEFT") hoofd.xPos--;
+            if (movement == "RIGHT") hoofd.xPos++;
 
             if (hoofd.xPos == obstacleXpos && hoofd.yPos == obstacleYpos)
             {
                 score++;
-                obstacleXpos = randomnummer.Next(1, screenwidth);
-                obstacleYpos = randomnummer.Next(1, screenheight);
+                obstacleXpos = randomnummer.Next(1, screenwidth - 2);
+                obstacleYpos = randomnummer.Next(1, screenheight - 2);
+                eaten = true; 
             }
-
             teljePositie.Insert(0, hoofd.xPos);
             teljePositie.Insert(1, hoofd.yPos);
-            teljePositie.RemoveAt(teljePositie.Count - 1);
-            teljePositie.RemoveAt(teljePositie.Count - 1);
 
-            //Kollision mit Wände oder mit sich selbst (Game Over)
-            if (hoofd.xPos == 0 || hoofd.xPos == screenwidth - 1 || hoofd.yPos == 0 || hoofd.yPos == screenheight - 1)
+            if (!eaten)
             {
-                Console.Clear();
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.SetCursorPosition(screenwidth / 5, screenheight / 2);
-                Console.WriteLine("Game Over");
-                Console.SetCursorPosition(screenwidth / 5, screenheight / 2 + 1);
-                Console.WriteLine("Dein Score ist: " + score);
-                Console.SetCursorPosition(screenwidth / 5, screenheight / 2 + 2);
-                Environment.Exit(0);
+                teljePositie.RemoveAt(teljePositie.Count - 1);
+                teljePositie.RemoveAt(teljePositie.Count - 1);
             }
 
-            for (int i = 0; i < teljePositie.Count; i += 2)
+            if (hoofd.xPos <= 0 || hoofd.xPos >= screenwidth - 1 || hoofd.yPos <= 0 || hoofd.yPos >= screenheight - 1)
+            {
+                GameOverScreen(screenwidth, screenheight, score);
+            }
+
+            for (int i = 2; i < teljePositie.Count; i += 2)
             {
                 if (hoofd.xPos == teljePositie[i] && hoofd.yPos == teljePositie[i + 1])
                 {
-                    Console.Clear();
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.SetCursorPosition(screenwidth / 5, screenheight / 2);
-                    Console.SetCursorPosition(screenwidth / 5, screenheight / 2 + 1);
-                    Console.WriteLine("Dein Score ist: " + score);
-                    Console.SetCursorPosition(screenwidth / 5, screenheight / 2 + 2);
-                    Environment.Exit(0);
+                    GameOverScreen(screenwidth, screenheight, score);
                 }
             }
-            Thread.Sleep(50);
+
+            Thread.Sleep(100);
         }
+    }
+
+    static void GameOverScreen(int w, int h, int score)
+    {
+        Console.Clear();
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.SetCursorPosition(w / 5, h / 2);
+        Console.WriteLine("Game Over");
+        Console.SetCursorPosition(w / 5, h / 2 + 1);
+        Console.WriteLine("Dein Score ist: " + score);
+        Console.SetCursorPosition(w / 5, h / 2 + 2);
+        Environment.Exit(0);
     }
 }
